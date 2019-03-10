@@ -1,0 +1,67 @@
+<!-- 右 -->
+<div class="content">
+    <div class="header">
+        <h1 class="page-title">分派权限</h1>
+    </div>
+
+    <div class="well">
+        正在给【{$role.role_name}】分派权限
+        <form action="{:url('saveauth')}" method="post">
+            <!-- 
+                添加隐藏域id,为该id'分配权限
+             -->
+            <input type="hidden" name="role_id" value="{$role.id}">
+            <!-- table -->
+            <table class="table table-bordered table-hover table-condensed">
+                <thead>
+                    <tr>
+                        <th>权限分类</th>
+                        <th>权限</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {foreach $top_auth as $top_v}
+                    <tr class="success">
+                        <td><input type="checkbox" class="top_auth" name="id[]" value="{$top_v.id}" {in name="$top_v.id"
+                                value="$role.role_auth_ids" } checked="checked" {/in}>{$top_v.auth_name} </td> <td>
+                            {foreach $sec_auth as $sec_v}
+                            <!--如果二级权限的pid和一级权限的id相等-->
+                            {if $sec_v.pid == $top_v.id}
+                            <input type="checkbox" class="sec_auth" name="id[]" value="{$sec_v.id}" {in name="$sec_v.id"
+                                value="$role.role_auth_ids" } checked="checked" {/in}>{$sec_v.auth_name} {/if} {/foreach}
+                                </td> </tr> {/foreach} </tbody> </table> <button class="btn btn-primary" type="submit">保存</button>
+        </form>
+    </div>
+    <script>
+        /*点一级分类,二级分类全部选中
+        1 选中目标元素
+        2 绑定点击事件
+        3 选中一级元素的选中状态,如果是选中,把二级权限全部选中
+        4 二级权限全部选中,将一级权限选中
+        */
+        $(function () {
+            //选中一级分类,将二级分类的状态改成一级分类的状态相同
+            //选中操作dom节点
+            $('.top_auth').change(function () {
+                //获取当前的顶级选项的状态
+                var status = $(this).prop('checked');
+                //将当前行的所有二级分类的状态,更改成和一级分类众泰一样
+                $(this).closest('tr').find('.sec_auth').prop('checked', status);
+            });
+
+            //当二级分类全部选中时,将一级分类也选中
+            $('.sec_auth').change(function () {
+                //获取所有选中状态的个数
+                var checked = $(this).closest('tr').find('.sec_auth:checked').length;
+                //只要有一个二级权限选中,则一级权限就选中
+                var status = checked > 0;
+                $(this).closest('tr').find('.top_auth').prop('checked', status);
+            });
+        })
+    </script>
+    <!-- footer -->
+    <footer>
+        <hr>
+        <p>© 2017 <a href="javascript:void(0);" target="_blank">ADMIN</a></p>
+    </footer>
+</div>
